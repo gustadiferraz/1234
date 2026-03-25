@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CarreiraPro – Gestão de Carreira e Polivalência</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     TELA DE LOGIN
+═══════════════════════════════════════════ -->
+<div id="page-login" class="page active">
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+        <h1>CarreiraPro</h1>
+        <p>Gestão de Carreira &amp; Polivalência</p>
+      </div>
+
+      <form class="login-form" onsubmit="doLogin(); return false;">
+        <div class="form-group">
+          <label><i class="fas fa-envelope"></i> E-mail</label>
+          <input type="email" id="login-email" placeholder="seu@email.com" value="admin@empresa.com" autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-lock"></i> Senha</label>
+          <div class="input-icon-right">
+            <input type="password" id="login-password" placeholder="••••••••" value="123456" autocomplete="current-password" />
+            <i class="fas fa-eye toggle-pass" onclick="togglePass()"></i>
+          </div>
+        </div>
+        <div id="login-error" class="login-error hidden">E-mail ou senha incorretos.</div>
+        <button type="submit" class="btn-primary btn-full">
+          <i class="fas fa-sign-in-alt"></i> Entrar
+        </button>
+      </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     APP PRINCIPAL (após login)
+═══════════════════════════════════════════ -->
+<div id="app" class="hidden">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="menu-toggle" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="topbar-brand">
+      <i class="fas fa-chart-line"></i>
+      <span>CarreiraPro</span>
+    </div>
+    <div class="topbar-right">
+      <div class="notif-badge" id="notif-badge" onclick="navigateTo('supervisor-home')">
+        <i class="fas fa-bell"></i>
+        <span class="badge-count" id="badge-count">0</span>
+      </div>
+      <div class="user-avatar" onclick="toggleUserMenu()">
+        <span id="user-initials">AD</span>
+      </div>
+      <div class="user-menu hidden" id="user-menu">
+        <div class="user-menu-name" id="user-menu-name">Administrador</div>
+        <div class="user-menu-role" id="user-menu-role">RH / Admin</div>
+        <hr/>
+        <a href="#" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Sair</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+    <nav class="sidebar-nav">
+      <!-- ADMIN MENU -->
+      <div id="menu-admin" class="menu-group hidden">
+        <div class="menu-label">ADMINISTRADOR</div>
+        <a class="nav-item" data-page="admin-dashboard" onclick="navigateTo('admin-dashboard')">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a class="nav-item" data-page="admin-employees" onclick="navigateTo('admin-employees')">
+          <i class="fas fa-users"></i> Funcionários
+        </a>
+        <a class="nav-item" data-page="admin-careers" onclick="navigateTo('admin-careers')">
+          <i class="fas fa-sitemap"></i> Trilha de Carreira
+        </a>
+        <a class="nav-item" data-page="admin-evaluations" onclick="navigateTo('admin-evaluations')">
+          <i class="fas fa-clipboard-list"></i> Avaliações
+        </a>
+        <a class="nav-item" data-page="admin-matrix" onclick="navigateTo('admin-matrix')">
+          <i class="fas fa-th"></i> Matriz de Polivalência
+        </a>
+        <a class="nav-item" data-page="admin-reports" onclick="navigateTo('admin-reports')">
+          <i class="fas fa-chart-bar"></i> Relatórios
+        </a>
+      </div>
+
+      <!-- SUPERVISOR MENU -->
+      <div id="menu-supervisor" class="menu-group hidden">
+        <div class="menu-label">SUPERVISOR</div>
+        <a class="nav-item" data-page="supervisor-home" onclick="navigateTo('supervisor-home')">
+          <i class="fas fa-home"></i> Início
+        </a>
+        <a class="nav-item" data-page="supervisor-employees" onclick="navigateTo('supervisor-employees')">
+          <i class="fas fa-users"></i> Minha Equipe
+        </a>
+        <a class="nav-item" data-page="admin-matrix" onclick="navigateTo('admin-matrix')">
+          <i class="fas fa-th"></i> Matriz de Polivalência
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="#" onclick="doLogout()" class="nav-item logout-item">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="main-content">
+
+    <!-- ══════════════════════════════════
+         ADMIN: DASHBOARD
+    ══════════════════════════════════ -->
+    <div id="page-admin-dashboard" class="page-section hidden">
+      <div class="page-header">
+        <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+        <span class="page-sub">Visão geral do sistema de carreira</span>
+      </div>
+
+      <div class="cards-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon"><i class="fas fa-users"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-total">0</span>
+            <span class="stat-label">Total de Funcionários</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon"><i class="fas fa-clock"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-apt">0</span>
+            <span class="stat-label">Aptos para Avaliação</span>
+          </div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-pending">0</span>
+            <span class="stat-label">Avaliações Pendentes</span>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-promoted">0</span>
+            <span class="stat-label">Promoções Aprovadas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-row">
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-bar"></i> Funcionários por Status</h3>
+          <div style="height:260px; position:relative;">
+            <canvas id="chart-status"></canvas>
+          </div>
+        </div>
+        <div class="recent-card">
+          <h3><i class="fas fa-bell"></i> Recém Elegíveis para Avaliação</h3>
+          <div id="recent-eligible-list" class="recent-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         ADMIN: FUNCIONÁRIOS
+    ══════════════════════════════════ -->
+    <div id="page-admin-employees" class="page-section hidden">
+      <div class="page-header">
+        <h2><i class="fas fa-users"></i> Gestão de Funcionários</h2>
+        <button class="btn-primary" onclick="openAddEmployee()">
+          <i class="fas fa-plus"></i> Novo Funcionário
+        </button>
+      </div>
+
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-employees" placeholder="Buscar funcionário..." oninput="renderEmployeesTable()" />
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table" id="employees-table">
+          <thead>
+            <tr>
+              <th>Funcionário</th>
+              <th>Cargo Atual → Desejado</th>
+              <th>Tempo de Casa</th>
+              <th>Progresso</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="employees-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         ADMIN: TRILHA DE CARREIRA
+    ══════════════════════════════════ -->
+    <div id="page-admin-careers" class="page-section hidden">
+      <div class="page-header">
+        <h2><i class="fas fa-sitemap"></i> Trilha de Carreira</h2>
+        <button class="btn-primary" onclick="openAddCareer()">
+          <i class="fas fa-plus"></i> Novo Cargo
+        </button>
+      </div>
+
+      <div class="career-trail-visual">
+        <div id="career-trail-flow"></div>
+      </div>
+
+      <div class="table-wrapper mt-20">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Cargo</th>
+              <th>Tempo Mínimo (meses)</th>
+              <th>Competências</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="careers-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         ADMIN: AVALIAÇÕES
+    ══════════════════════════════════ -->
+    <div id="page-admin-evaluations" class="page-section hidden">
+      <div class="page-header">
+        <h2><i class="fas fa-clipboard-list"></i> Histórico de Avaliações</h2>
+        <button class="btn-outline" onclick="printEvaluations()">
+          <i class="fas fa-print"></i> Imprimir
+        </button>
+      </div>
+      <div id="evaluations-list" class="evaluations-container"></div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         ADMIN: MATRIZ DE POLIVALÊNCIA
+    ══════════════════════════════════ -->
+    <div id="page-admin-matrix" class="page-section hidden">
+      <div class="page-header">
+        <h2><i class="fas fa-th"></i> Matriz de Polivalência</h2>
+        <div class="matrix-filters">
+          <select id="matrix-sector-filter" onchange="renderMatrix()">
+            <option value="">Todos os Setores</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="matrix-legend">
+        <span class="leg-item"><span class="leg-dot red"></span> Não Treinado</span>
+        <span class="leg-item"><span class="leg-dot yellow"></span> Em Treinamento</span>
+        <span class="leg-item"><span class="leg-dot green"></span> Competente</span>
+        <span class="leg-item"><span class="leg-dot star"></span> Referência</span>
+      </div>
+
+      <div class="matrix-wrapper">
+        <div id="matrix-container"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         ADMIN: RELATÓRIOS
+    ══════════════════════════════════ -->
+    <div id="page-admin-reports" class="page-section hidden">
+      <div class="page-header">
+        <h2><i class="fas fa-chart-bar"></i> Relatórios</h2>
+        <button class="btn-outline" onclick="window.print()">
+          <i class="fas fa-print"></i> Imprimir Relatório
+        </button>
+      </div>
+
+      <div class="reports-grid">
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-pie"></i> Distribuição por Status</h3>
+          <div style="height:240px; position:relative;">
+            <canvas id="chart-pie-status"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-bar"></i> Avaliações por Resultado</h3>
+          <div style="height:240px; position:relative;">
+            <canvas id="chart-eval-result"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-table-card">
+        <h3><i class="fas fa-list"></i> Resumo por Funcionário</h3>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Funcionário</th>
+                <th>Cargo Atual</th>
+                <th>Cargo Desejado</th>
+                <th>Tempo de Casa</th>
+                <th>Última Avaliação</th>
+                <th>Resultado</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="report-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         SUPERVISOR: HOME
+    ══════════════════════════════════ -->
+    <div id="page-supervisor-home" class="page-section hidden">
+      <div class="page-header">
+        <h2><i class="fas fa-home"></i> Meu Painel</h2>
+        <span class="page-sub" id="supervisor-greeting">Olá, Supervisor!</span>
+      </div>
+
+      <div id="supervisor-alert" class="alert-banner hidden">
+        <i class="fas fa-bell"></i>
+        <span id="supervisor-alert-text"></span>
+      </div>
+
+      <div class="cards-grid-2">
+        <div class="stat-card blue">
+          <div class="stat-icon"><i class="fas fa-users"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="sup-stat-total">0</span>
+            <span class="stat-label">Minha Equipe</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="sup-stat-pending">0</span>
+            <span class="stat-label">Aguardam Avaliação</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title"><i class="fas fa-user-clock"></i> Funcionários Aptos para Avaliação</h3>
+      <div id="sup-eligible-list" class="employee-cards-list"></div>
+
+      <h3 class="section-title mt-20"><i class="fas fa-users"></i> Toda a Equipe</h3>
+      <div id="sup-all-list" class="employee-cards-list"></div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         SUPERVISOR: MINHA EQUIPE
+    ══════════════════════════════════ -->
+    <div id="page-supervisor-employees" class="page-section hidden">
+      <div class="page-header">
+        <h2><i class="fas fa-users"></i> Minha Equipe</h2>
+      </div>
+      <div id="sup-team-list" class="employee-cards-list"></div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         FORMULÁRIO DE AVALIAÇÃO
+    ══════════════════════════════════ -->
+    <div id="page-evaluation-form" class="page-section hidden">
+      <div class="page-header">
+        <button class="btn-back" onclick="goBack()"><i class="fas fa-arrow-left"></i> Voltar</button>
+        <h2><i class="fas fa-clipboard-check"></i> Avaliação de Polivalência</h2>
+      </div>
+
+      <!-- Employee Header -->
+      <div class="eval-employee-card" id="eval-employee-header"></div>
+
+      <!-- Formulário em seções -->
+      <form id="evaluation-form" onsubmit="submitEvaluation(event)">
+
+        <!-- SEÇÃO 1: COMPETÊNCIAS TÉCNICAS -->
+        <div class="eval-section">
+          <div class="eval-section-header">
+            <span class="eval-section-icon">📋</span>
+            <div>
+              <h3>Competências Técnicas</h3>
+              <p>Avalie o domínio técnico do funcionário</p>
+            </div>
+          </div>
+          <div class="eval-questions" id="section-tecnica"></div>
+        </div>
+
+        <!-- SEÇÃO 2: COMPORTAMENTO -->
+        <div class="eval-section">
+          <div class="eval-section-header">
+            <span class="eval-section-icon">🤝</span>
+            <div>
+              <h3>Comportamento e Atitude</h3>
+              <p>Avalie o comportamento profissional</p>
+            </div>
+          </div>
+          <div class="eval-questions" id="section-comportamento"></div>
+        </div>
+
+        <!-- SEÇÃO 3: SEGURANÇA -->
+        <div class="eval-section">
+          <div class="eval-section-header">
+            <span class="eval-section-icon">🔒</span>
+            <div>
+              <h3>Segurança e Qualidade</h3>
+              <p>Avalie conformidade com normas</p>
+            </div>
+          </div>
+          <div class="eval-questions" id="section-seguranca"></div>
+        </div>
+
+        <!-- SEÇÃO 4: POTENCIAL -->
+        <div class="eval-section">
+          <div class="eval-section-header">
+            <span class="eval-section-icon">📈</span>
+            <div>
+              <h3>Potencial de Crescimento</h3>
+              <p>Avalie o potencial de liderança</p>
+            </div>
+          </div>
+          <div class="eval-questions" id="section-potencial"></div>
+        </div>
+
+        <!-- AVALIAÇÃO GERAL -->
+        <div class="eval-section">
+          <div class="eval-section-header">
+            <span class="eval-section-icon">⭐</span>
+            <div>
+              <h3>Avaliação Geral</h3>
+              <p>Sua avaliação final do funcionário</p>
+            </div>
+          </div>
+          <div class="general-eval">
+            <div class="stars-container">
+              <label>Nota Geral:</label>
+              <div class="stars" id="star-rating">
+                <span class="star" data-val="1" onclick="setStars(1)">★</span>
+                <span class="star" data-val="2" onclick="setStars(2)">★</span>
+                <span class="star" data-val="3" onclick="setStars(3)">★</span>
+                <span class="star" data-val="4" onclick="setStars(4)">★</span>
+                <span class="star" data-val="5" onclick="setStars(5)">★</span>
+              </div>
+              <span id="star-label">Selecione</span>
+            </div>
+
+            <div class="form-group">
+              <label><i class="fas fa-thumbs-up"></i> Pontos Fortes do Funcionário</label>
+              <textarea id="eval-strengths" rows="3" placeholder="Descreva os principais pontos fortes..."></textarea>
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-tools"></i> Pontos a Desenvolver</label>
+              <textarea id="eval-improvements" rows="3" placeholder="O que precisa melhorar..."></textarea>
+            </div>
+            <div class="form-group">
+              <label><i class="fas fa-comment"></i> Observações Gerais</label>
+              <textarea id="eval-observations" rows="3" placeholder="Observações adicionais..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTADO EM TEMPO REAL -->
+        <div class="eval-result-preview" id="eval-result-preview">
+          <div class="result-progress-bar">
+            <div class="result-bar-fill" id="result-bar-fill"></div>
+          </div>
+          <div class="result-info">
+            <span id="result-percent-text">0% de critérios atendidos</span>
+            <span id="result-badge" class="result-badge"></span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary btn-full btn-submit">
+          <i class="fas fa-paper-plane"></i> Enviar Avaliação
+        </button>
+      </form>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODAIS
+═══════════════════════════════════════════ -->
+
+<!-- Modal: Adicionar/Editar Funcionário -->
+<div id="modal-employee" class="modal-overlay hidden" onclick="closeModalOverlay(event, 'modal-employee')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-employee-title">Novo Funcionário</h3>
+      <button class="modal-close" onclick="closeModal('modal-employee')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="emp-id" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome Completo *</label>
+          <input type="text" id="emp-name" placeholder="Ex: Carlos Silva" required />
+        </div>
+        <div class="form-group">
+          <label>Setor / Área *</label>
+          <input type="text" id="emp-sector" placeholder="Ex: Produção" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cargo Atual *</label>
+          <input type="text" id="emp-current-role" placeholder="Ex: Auxiliar" required />
+        </div>
+        <div class="form-group">
+          <label>Cargo Desejado *</label>
+          <input type="text" id="emp-desired-role" placeholder="Ex: Operador" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Data de Admissão *</label>
+          <input type="date" id="emp-admission" required />
+        </div>
+        <div class="form-group">
+          <label>Tempo Mínimo para Avaliação (meses) *</label>
+          <input type="number" id="emp-min-months" placeholder="Ex: 12" min="1" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Supervisor Responsável *</label>
+        <select id="emp-supervisor">
+          <option value="samuelbandez@lumini.com">Samuel Bandez (samuelbandez@lumini.com)</option>
+          <option value="danielsoares@lumini.com">Daniel Soares (danielsoares@lumini.com)</option>
+          <option value="kauelima@lumini.com">Kaue Lima (kauelima@lumini.com)</option>
+          <option value="helciopacheco@lumini.com">Helcio Pacheco (helciopacheco@lumini.com)</option>
+          <option value="tonicarlos@lumini.com">Toni Carlos (tonicarlos@lumini.com)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('modal-employee')">Cancelar</button>
+      <button class="btn-primary" onclick="saveEmployee()"><i class="fas fa-save"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Ver Funcionário (Admin) -->
+<div id="modal-employee-view" class="modal-overlay hidden" onclick="closeModalOverlay(event, 'modal-employee-view')">
+  <div class="modal-box modal-large">
+    <div class="modal-header">
+      <h3>Detalhes do Funcionário</h3>
+      <button class="modal-close" onclick="closeModal('modal-employee-view')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="modal-employee-view-body"></div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('modal-employee-view')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Cargo / Trilha -->
+<div id="modal-career" class="modal-overlay hidden" onclick="closeModalOverlay(event, 'modal-career')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-career-title">Novo Cargo</h3>
+      <button class="modal-close" onclick="closeModal('modal-career')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="career-id" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome do Cargo *</label>
+          <input type="text" id="career-name" placeholder="Ex: Operador" required />
+        </div>
+        <div class="form-group">
+          <label>Nível (ordem) *</label>
+          <input type="number" id="career-level" placeholder="Ex: 2" min="1" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Tempo Mínimo de Experiência (meses) *</label>
+        <input type="number" id="career-months" placeholder="Ex: 12" min="1" required />
+      </div>
+      <div class="form-group">
+        <label>Competências Obrigatórias (uma por linha)</label>
+        <textarea id="career-competencies" rows="5" placeholder="Operar máquina de corte&#10;Ler desenho técnico&#10;..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('modal-career')">Cancelar</button>
+      <button class="btn-primary" onclick="saveCareer()"><i class="fas fa-save"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmação Avaliação Enviada -->
+<div id="modal-eval-success" class="modal-overlay hidden">
+  <div class="modal-box modal-success">
+    <div class="success-animation">
+      <div class="success-circle"><i class="fas fa-check"></i></div>
+    </div>
+    <h3 id="success-title">Avaliação Enviada!</h3>
+    <p id="success-message">A avaliação foi registrada com sucesso no sistema.</p>
+    <div id="success-badge-container"></div>
+    <button class="btn-primary btn-full mt-20" onclick="closeEvalSuccess()">
+      <i class="fas fa-arrow-left"></i> Voltar ao Painel
+    </button>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
